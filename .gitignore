@@ -1,0 +1,25 @@
+﻿# Build output
+build/
+build_*/
+
+# Logs and dumps
+*.log
+dc4_crash*.log
+
+# Local env
+.venv/
+__pycache__/
+*.pyc
+
+# Runtime binaries (keep resource DLLs/icons checked in if needed)
+*.exe
+*.dll
+!LoaderDll.dll
+!LocaleEmulator.dll
+!icon.ico
+
+# Generated translation/config files at runtime
+id_Data/
+eng_data/
+.sync_manifest
+.original_cache/

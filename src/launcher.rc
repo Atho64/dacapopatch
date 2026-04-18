@@ -1,0 +1,8 @@
+#include "resource.h"
+
+// Icon
+IDI_ICON1 ICON "..\\icon.ico"
+
+// Embedded Locale Emulator DLLs as binary resources
+IDR_LOADERDLL   RCDATA "..\\LoaderDll.dll"
+IDR_LOCALEEMU   RCDATA "..\\LocaleEmulator.dll"

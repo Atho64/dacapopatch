@@ -1,0 +1,26 @@
+Locale Emulator / Locale-Emulator-Core licensing notes
+=======================================================
+
+Bundled files in this repository:
+- LoaderDll.dll
+- LocaleEmulator.dll
+
+Upstream sources:
+- https://github.com/xupefei/Locale-Emulator
+- https://github.com/xupefei/Locale-Emulator-Core
+
+Relevant upstream statements:
+- Locale-Emulator repository indicates LGPL-3.0 and GPL-3.0 licenses.
+- Locale-Emulator-Core README states source files in Loader, LoaderDll, and
+  LocaleEmulator folders are licensed under LGPL-3.0.
+
+Local provenance (SHA-256):
+- LocaleEmulator.dll: C79C175FDAD174AA46A72197D148316299A56F950AAAB1B84930D09EE1084A88
+- LoaderDll.dll:      82FAE0F44F4CA0C9C37907DF74CEF2415EEB5FAE1CF8D4F36F34FFCAF7E3CC0C
+
+Canonical license text links:
+- LGPL-3.0: https://www.gnu.org/licenses/lgpl-3.0.txt
+- GPL-3.0:  https://www.gnu.org/licenses/gpl-3.0.txt
+
+If you redistribute binaries, keep third-party notices and ensure compliance
+with applicable LGPL/GPL obligations for the components you distribute.

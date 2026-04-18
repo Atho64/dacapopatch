@@ -1,0 +1,4 @@
+LIBRARY winmm
+EXPORTS
+    timeGetTime
+    Test
