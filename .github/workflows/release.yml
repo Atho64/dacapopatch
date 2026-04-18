@@ -1,0 +1,59 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup MSVC (x86)
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x86
+
+      - name: Configure
+        run: cmake -S . -B build -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        run: cmake --build build
+
+      - name: Package
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force dist | Out-Null
+
+          Copy-Item build\DCPatch.dll dist\
+          Copy-Item build\DCLauncher.exe dist\
+          Copy-Item DCPatch.ini dist\
+          Copy-Item patch_names.json dist\
+          Copy-Item patch_names_id.json dist\
+          Copy-Item patch_names_eng.json dist\
+          Copy-Item patch_ui.json dist\
+          Copy-Item patch_ui_id.json dist\
+          Copy-Item patch_ui_eng.json dist\
+          Copy-Item README.md dist\
+          Copy-Item THIRD_PARTY_NOTICES.md dist\
+
+          New-Item -ItemType Directory -Force dist\LICENSES | Out-Null
+          Copy-Item LICENSES\* dist\LICENSES\
+          Copy-Item Detours\LICENSE dist\LICENSES\Detours-LICENSE.txt
+
+          $zipName = "dacapopatch-${{ github.ref_name }}.zip"
+          if (Test-Path $zipName) { Remove-Item $zipName -Force }
+          Compress-Archive -Path dist\* -DestinationPath $zipName -Force
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dacapopatch-${{ github.ref_name }}.zip
+          generate_release_notes: true
