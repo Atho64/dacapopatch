@@ -1,6 +1,5 @@
 ﻿# DCPatch
-
-Clean, shareable source package for the Circus-engine patch used with DC4.
+Circus-engine patch used for DC4.
 
 This folder intentionally ships with:
 - empty `DCPatch.ini` values
