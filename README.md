@@ -256,6 +256,86 @@ Important:
 - These RVAs are executable-version dependent.
 - Backlog hooks are intentionally guarded: non-zero INI values are required before hook attach/patch.
 
+## Tutorial: Finding `[Addresses]` for Your Build
+
+Use this when your executable is a different build and backlog hooks are not active.
+
+Important behavior from the code:
+- Auto-scan resolves candidate addresses and logs them.
+- Auto-scan does **not** auto-enable risky hooks.
+- Hooks are only activated when specific INI keys are explicitly non-zero.
+
+Feature-to-key mapping:
+- Backlog font/render hook:
+  - must set `BacklogFuncRVA` (non-zero)
+- Backlog icon table patch hook:
+  - must set `ShowBacklogIcon=1`
+  - must set `BacklogHookRVA` (non-zero)
+  - `BacklogTableRVA` is recommended if table auto-scan fails
+
+Notes:
+- Empty values are allowed in INI; runtime falls back internally.
+- Hex values like `0x5276` are supported (`wcstoul(..., base 0)`), decimal also works.
+
+### Method A (Best): Two-Pass Auto-Scan Workflow
+
+Pass 1 (discover):
+1. In `[Addresses]`, leave `BacklogHookRVA`, `BacklogFuncRVA`, `BacklogTableRVA` blank (or `0`).
+2. Ensure `ShowBacklogIcon=1` in `[Settings]` if you want icon hook data.
+3. Launch through `DCLauncher.exe`.
+4. Capture debug logs using DebugView/x64dbg output window.
+5. Record these log lines:
+   - `DCPatch: BacklogHookAddr auto-scan => ... (RVA 0x...)`
+   - `DCPatch: BacklogFuncAddr auto-walk => ... (RVA 0x...)`
+   - `DCPatch: BacklogTableBase auto-scan => ... (RVA 0x...)`
+   - `DCPatch INFO: Auto-scan found BacklogFunc ... BacklogFuncRVA=0x...`
+   - `DCPatch INFO: Auto-scan found BacklogHookAddr ... BacklogHookRVA=0x...`
+
+Pass 2 (activate):
+1. Copy found RVAs into `[Addresses]`.
+2. Relaunch game.
+3. Confirm activation logs:
+   - `DCPatch: BacklogFunc hook ENABLED at ... (from INI)`
+   - No `InstallBacklogIconHook failed` warning.
+4. If you see table warnings (`BacklogTableBase not found`), set `BacklogTableRVA` explicitly from your scan/debugger.
+
+Typical DC4 result:
+
+```ini
+[Addresses]
+BacklogHookRVA=0x5276
+BacklogFuncRVA=0x4EE0
+BacklogTableRVA=0xBDA00
+BacklogStride=0x544
+BacklogTextOffset=0x0
+BacklogNameOffset=0x400
+BacklogMaxEntries=200
+```
+
+### Method B (Manual Fallback): x32dbg / IDA
+
+Use this if Method A cannot resolve stable values.
+
+1. Open EXE in x32dbg and note module base.
+2. In `.text`, search for pattern `33 DB 83 E8 01` (`xor ebx,ebx; sub eax,1`).
+3. Compute:
+   - `BacklogHookRVA = HookAddress - ModuleBase`
+4. From that location, walk backward to function prologue (`55 8B EC`) to get:
+   - `BacklogFuncRVA = FuncStart - ModuleBase`
+5. In the same function body, identify backlog table pointer in `.data`:
+   - `BacklogTableRVA = TableBase - ModuleBase`
+6. Keep structure fields at defaults unless your build proves otherwise:
+   - `BacklogStride=0x544`
+   - `BacklogTextOffset=0x0`
+   - `BacklogNameOffset=0x400`
+   - `BacklogMaxEntries=200`
+
+Safety checklist:
+- Set one address at a time and retest.
+- Keep crash logs (`dc4_crash.log` / `dc_crash.log`) for bad RVA diagnosis.
+- If only font hook is needed, set only `BacklogFuncRVA` first.
+- If only icon hook is needed, set `ShowBacklogIcon=1` + `BacklogHookRVA` first.
+
 ## Troubleshooting
 
 - If launcher says game EXE not found: set `[Launcher] TargetExe`.
