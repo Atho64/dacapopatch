@@ -10,7 +10,6 @@ This folder intentionally ships with:
 - `DCLauncher.exe` launches the game and injects `DCPatch.dll`
 - Japanese locale handling:
   - Windows: Locale Emulator API path (embedded resources)
-  - Wine/Proton: registry + `LC_ALL/LANG` environment setup
 - Hooked text rendering and font override for dialogue/backlog
 - JSON-based name mapping and UI/scenario-title translation
 - Language-specific JSON support:
